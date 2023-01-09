@@ -1,0 +1,4 @@
+debug: true
+#device: nuc=0 nx=1 others=2
+device: 2
+camera_to_gimbal: [0,0,100]

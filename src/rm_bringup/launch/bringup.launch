@@ -1,0 +1,19 @@
+<launch>
+  <rosparam command="load" file="$(find rm_bringup)/config/general_param.yaml" />
+  <!-- read from video -->
+  <!-- <node pkg="camera" type="video_play.py" name="camera_node"/> -->
+  <!-- virtual serial -->
+  <node pkg="serial" type="virtual_serial.py" name="serial_node"/>
+  <!-- static_frame_publisher -->
+  <node pkg="tf" type="static_transform_publisher" name="base_footprint2base_link" args="0.0 0.0 0.0 0.0 0.0 0.0 /base_footprint /base_link 10"/>
+  <!--serial-->
+	<!-- <include file="$(find serial)/launch/serial.launch" /> -->
+  <!--camera-->
+  <include file="$(find camera)/launch/camera.launch" />
+  <!--detector-->
+  <include file="$(find detector)/launch/detector.launch" />
+  <!--processor-->
+  <include file="$(find post_processor)/launch/processor.launch" />
+  <!-- omni -->
+  <include file="$(find rm_omni)/launch/rm_omni.launch"/>
+</launch>       

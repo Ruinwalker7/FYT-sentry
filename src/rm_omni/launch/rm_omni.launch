@@ -1,0 +1,5 @@
+<launch>
+    	<node name="rm_omni" pkg="rm_omni" type="rm_omni_node" respawn="true" output="screen">       
+            <rosparam file="$(find rm_omni)/config/rm_omni.yaml" command="load"/>
+        </node>
+</launch>

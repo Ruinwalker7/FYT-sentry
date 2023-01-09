@@ -1,0 +1,5 @@
+<launch>
+	<node name="post_processor" pkg="post_processor" type="post_processor_node" respawn="true" output="screen">       
+            <rosparam file="$(find post_processor)/config/processor_param.yaml" command="load"/>
+        </node>
+</launch>

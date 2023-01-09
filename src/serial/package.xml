@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>serial</name>
+  <version>0.9.0</version>
+  <description>
+    robomaster base package for communication with embedded system
+  </description>
+  <maintainer email="zhenpeng.ge@qq.com">zhenpeng ge</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>rm_interfaces</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>rm_interfaces</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+
+  <export>
+
+  </export>
+</package>
+

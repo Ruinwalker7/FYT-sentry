@@ -1,0 +1,5 @@
+<launch>
+	<node name="detector" pkg="detector" type="detector_node" respawn="false">       
+            <rosparam file="$(find detector)/config/detector_param.yaml" command="load"/>
+        </node>
+</launch>

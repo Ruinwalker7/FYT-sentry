@@ -1,0 +1,5 @@
+<launch>
+	<node name="serial" pkg="serial" type="simple_robot_base" respawn="true" output="screen">       
+            <rosparam file="$(find serial)/config/serial_param.yaml" command="load"/>
+        </node>
+</launch>

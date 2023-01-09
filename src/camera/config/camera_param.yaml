@@ -1,0 +1,10 @@
+explosure_time: 10000
+resolution_width: 1280
+resolution_height: 600
+auto_white_balance: 1
+frame_rate: 210
+####没有使用  8mm
+camera_matrix: [ 1292.694475, 0,  630.619866,
+    0,  1293.793501,   291.767116,
+    0,  0,  1]
+dist_coeffs: [-0.194714,0.129487,0.06499,0.004098,0.000000]

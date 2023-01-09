@@ -1,0 +1,5 @@
+<launch>
+	<node name="camera" pkg="camera" type="node" respawn="true" output="screen">       
+            <rosparam file="$(find camera)/config/camera_param.yaml" command="load"/>
+        </node>
+</launch>

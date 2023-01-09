@@ -1,0 +1,10 @@
+model_path: "/usr/lee/Downloads/aqs-dwr2023-sentry/src/detector/model/armor_gpu.weights"
+class_path: "/usr/lee/Downloads/aqs-dwr2023-sentry/src/detector/model/armor.names"
+config_path: "/usr/lee/Downloads/aqs-dwr2023-sentry/src/detector/model/armor_gpu.cfg"
+input_height: 416
+input_width: 416
+conf_thresh: 0.2
+nms_thresh: 0.2
+
+
+
