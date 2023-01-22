@@ -17,7 +17,7 @@ namespace omni{
 
 
     void Image1Callback(const sensor_msgs::ImageConstPtr &image1){
-        cv::Mat src_image1 = cv_bridge::toCvShare(image1, "bgr8")->image;
+        cv::Mat src_image1 = cv_bridge::toCvShare(image1, "rgb8")->image;
         ros::Time time=ros::Time::now();
 
         if(debug_){

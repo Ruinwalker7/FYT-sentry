@@ -169,24 +169,30 @@ bool init(){
 	//在这个区间图像会通过OnFrameCallbackFun接口返给用户 
 	std::cout<<"输入ctrl+c关闭程序"<<std::endl;
 
-	cv::VideoCapture capture1;
-	capture1.set(cv::CAP_PROP_FRAME_HEIGHT,352);
-    capture1.set(cv::CAP_PROP_FRAME_WIDTH,352);
+	cv::VideoCapture capture1(0, cv::CAP_V4L);
+	capture1.set(cv::CAP_PROP_FRAME_HEIGHT,800);
+    capture1.set(cv::CAP_PROP_FRAME_WIDTH,600);
     capture1.set(cv::CAP_PROP_FPS,30);
+	// capture1.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);//亮度 1
+
     capture1.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('M','J','P','G'));
     capture1.open(-1);
-        if(!capture1.isOpened()){
+    if(!capture1.isOpened()){
             ROS_INFO("Camera2 Error!");
-        }
+    }else{
+		ROS_INFO("Camera2 opened");
+	}
 	
 	cv::Mat camera_img1;
 
 	while(ros::ok()){
+		capture1.set(cv::CAP_PROP_EXPOSURE,-4);
 		GXSetFloat(m_hDevice, GX_FLOAT_EXPOSURE_TIME, explosure_time);
 		GXSetEnum(m_hDevice,GX_ENUM_BALANCE_WHITE_AUTO,auto_white_balance);
 		capture1>>camera_img1;
 		pub_image2.publish(cv_bridge::CvImage(std_msgs::Header(), "rgb8", camera_img1).toImageMsg());
-	
+		cv::imshow("camera2",camera_img1);
+		cv::waitKey(10);
 	}
 
 	//---------------------  
