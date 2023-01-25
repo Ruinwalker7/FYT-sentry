@@ -6,6 +6,7 @@ cv_bridge_new
 image_transport
 roscpp
 sensor_msgs
+rm_interfaces
 std_msgs
 rospy
 )

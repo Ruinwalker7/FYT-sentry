@@ -57,6 +57,8 @@ find_package(catkin REQUIRED COMPONENTS
    SerialSendMsg.msg
    SerialReceiveMsg.msg
    TrackInfo.msg
+   Robots.msg
+   Robot.msg
  )
 
 ## Generate services in the 'srv' folder
