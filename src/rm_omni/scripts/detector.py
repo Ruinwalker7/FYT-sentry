@@ -7,6 +7,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from rm_interfaces.msg import Robots
 from rm_interfaces.msg import Robot
+import threading
 
 class omni_detector:
     def __init__(self):
@@ -14,10 +15,10 @@ class omni_detector:
         self.bridge=CvBridge()
         self.debug=True
         # 加载label names
-        self.robots1_pub = rospy.Publisher('/robots1',Robots,queue_size=1)
-        self.robots2_pub = rospy.Publisher('/robots2',Robots,queue_size=1)
-        self.robots3_pub = rospy.Publisher('/robots3',Robots,queue_size=1)
-        self.robots4_pub = rospy.Publisher('/robots4',Robots,queue_size=1)
+        self.robots1_pub = rospy.Publisher('/robots1',Robots,queue_size=2)
+        self.robots2_pub = rospy.Publisher('/robots2',Robots,queue_size=2)
+        self.robots3_pub = rospy.Publisher('/robots3',Robots,queue_size=2)
+        self.robots4_pub = rospy.Publisher('/robots4',Robots,queue_size=2)
         self.names = []
         self.input_width=352
         self.input_height=352
@@ -141,13 +142,13 @@ class omni_detector:
 
     def img1_callback(self,msg):
         img = self.bridge.imgmsg_to_cv2(msg,"bgr8")
-        new_img = cv2.resize(img,(352,352), interpolation=cv2.INTER_AREA)
+        new_img = cv2.resize(img,(400,300), interpolation=cv2.INTER_AREA)
         try:
             bboxes = self.detection(self.session, new_img, self.input_width, self.input_height, 0.65)
         except:
             pass
         else:
-            robots=Robots()
+            robots1=Robots()
             for b in bboxes:
                 robot=Robot()
                 print(b)
@@ -159,25 +160,25 @@ class omni_detector:
                 robot.br.x=x2
                 robot.br.y=y2
                 robot.id=cls_index
-                robots.All_robots.append(robot)
+                robots1.All_robots.append(robot)
                 #绘制检测框
                 cv2.rectangle(new_img, (x1,y1), (x2, y2), (255, 255, 0), 2)
                 cv2.putText(new_img, '%.2f' % obj_score, (x1, y1 - 5), 0, 0.7, (0, 255, 0), 2)
                 cv2.putText(new_img, self.names[cls_index], (x1, y1 - 25), 0, 0.7, (0, 255, 0), 2)
-            cv2.imshow("result", new_img)
-            cv2.waitKey(10)
-            robots.header = msg.header
-            self.robots1_pub.publish(robots)
+            # cv2.imshow("result1", new_img)
+            # cv2.waitKey(10)
+            robots1.header = msg.header
+            self.robots1_pub.publish(robots1)
 
     def img2_callback(self,msg):
-        img = self.bridge.imgmsg_to_cv2(msg,"bgr8")
-        new_img = cv2.resize(img,(352,352), interpolation=cv2.INTER_AREA)
+        img = self.bridge.imgmsg_to_cv2(msg,"rgb8")
+        new_img = cv2.resize(img,(400,300), interpolation=cv2.INTER_AREA)
         try:
             bboxes = self.detection(self.session, new_img, self.input_width, self.input_height, 0.65)
         except:
             pass
         else:
-            robots=Robots()
+            robots2=Robots()
             robot=Robot()
             for b in bboxes:
                 print(b)
@@ -189,26 +190,26 @@ class omni_detector:
                 robot.br.x=x2
                 robot.br.y=y2
                 robot.id=cls_index
-                robots.All_robots.append(robot)
+                robots2.All_robots.append(robot)
                 cv2.waitKey(10)
                 #绘制检测框
                 cv2.rectangle(new_img, (x1,y1), (x2, y2), (255, 255, 0), 2)
                 cv2.putText(new_img, '%.2f' % obj_score, (x1, y1 - 5), 0, 0.7, (0, 255, 0), 2)
                 cv2.putText(new_img, self.names[cls_index], (x1, y1 - 25), 0, 0.7, (0, 255, 0), 2)
-            cv2.imshow("result", new_img)
-            cv2.waitKey(10)
-            robots.header = msg.header
-            self.robots2_pub.publish(robots)
+            # cv2.imshow("result2", new_img)
+            # cv2.waitKey(10)
+            robots2.header = msg.header
+            self.robots2_pub.publish(robots2)
 
     def img3_callback(self,msg):
-        img = self.bridge.imgmsg_to_cv2(msg,"bgr8")
+        img = self.bridge.imgmsg_to_cv2(msg,"rgb8")
         new_img = cv2.resize(img,(352,352), interpolation=cv2.INTER_AREA)
         try:
             bboxes = self.detection(self.session, new_img, self.input_width, self.input_height, 0.65)
         except:
             pass
         else:
-            robots=Robots()
+            robots3=Robots()
             robot=Robot()
             for b in bboxes:
                 print(b)
@@ -220,26 +221,26 @@ class omni_detector:
                 robot.br.x=x2
                 robot.br.y=y2
                 robot.id=cls_index
-                robots.All_robots.append(robot)
+                robots3.All_robots.append(robot)
                 cv2.waitKey(10)
                 #绘制检测框
                 cv2.rectangle(new_img, (x1,y1), (x2, y2), (255, 255, 0), 2)
                 cv2.putText(new_img, '%.2f' % obj_score, (x1, y1 - 5), 0, 0.7, (0, 255, 0), 2)
                 cv2.putText(new_img, self.names[cls_index], (x1, y1 - 25), 0, 0.7, (0, 255, 0), 2)
-            cv2.imshow("result", new_img)
-            cv2.waitKey(10)
-            robots.header = msg.header
-            self.robots2_pub.publish(robots)
+            # cv2.imshow("result", new_img)
+            # cv2.waitKey(10)
+            robots3.header = msg.header
+            self.robots2_pub.publish(robots3)
 
     def img4_callback(self,msg):
-        img = self.bridge.imgmsg_to_cv2(msg,"bgr8")
+        img = self.bridge.imgmsg_to_cv2(msg,"rgb8")
         new_img = cv2.resize(img,(352,352), interpolation=cv2.INTER_AREA)
         try:
             bboxes = self.detection(self.session, new_img, self.input_width, self.input_height, 0.65)
         except:
             pass
         else:
-            robots=Robots()
+            robots4=Robots()
             robot=Robot()
             for b in bboxes:
                 print(b)
@@ -251,16 +252,16 @@ class omni_detector:
                 robot.br.x=x2
                 robot.br.y=y2
                 robot.id=cls_index
-                robots.All_robots.append(robot)
+                robots4.All_robots.append(robot)
                 cv2.waitKey(10)
                 #绘制检测框
                 cv2.rectangle(new_img, (x1,y1), (x2, y2), (255, 255, 0), 2)
                 cv2.putText(new_img, '%.2f' % obj_score, (x1, y1 - 5), 0, 0.7, (0, 255, 0), 2)
                 cv2.putText(new_img, self.names[cls_index], (x1, y1 - 25), 0, 0.7, (0, 255, 0), 2)
-            cv2.imshow("result", new_img)
-            cv2.waitKey(10)
-            robots.header = msg.header
-            self.robots4_pub.publish(robots)
+            # cv2.imshow("result", new_img)
+            # cv2.waitKey(10)
+            robots4.header = msg.header
+            self.robots4_pub.publish(robots4)
     
 
 

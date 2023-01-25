@@ -24,7 +24,7 @@ int64_t             m_nPixelColorFilter;    ///< Bayer格式
 
 cv::Mat camera_img;
 sensor_msgs::Image img;
-image_transport::Publisher pub_image1,pub_image2,pub_image3;
+image_transport::Publisher pub_image1,pub_image2,pub_image3,pub_image4;
 ros::Subscriber sub_cameraParam;
 static int resolution_width;
 static int resolution_height;
@@ -190,8 +190,10 @@ bool init(){
 		GXSetFloat(m_hDevice, GX_FLOAT_EXPOSURE_TIME, explosure_time);
 		GXSetEnum(m_hDevice,GX_ENUM_BALANCE_WHITE_AUTO,auto_white_balance);
 		capture1>>camera_img1;
-		pub_image2.publish(cv_bridge::CvImage(std_msgs::Header(), "rgb8", camera_img1).toImageMsg());
-		cv::imshow("camera2",camera_img1);
+				std_msgs::Header hd;
+		hd.stamp = ros::Time::now();
+		pub_image2.publish(cv_bridge::CvImage(hd, "rgb8", camera_img1).toImageMsg());
+		// cv::imshow("camera2",camera_img1);
 		cv::waitKey(10);
 	}
 

@@ -35,34 +35,16 @@ namespace omni{
         std::vector<robot> cam4_robots;
     };
     MeasureGroup group;
-
-
-    
     struct Location{
         float yaw;
         int id;
         float distance;
     };
-    static const char *labels[] = {"robot","red","blue","grey"};
+
     bool debug_;
-    cv::VideoCapture capture1,capture2;
-    float x1,x2,y1,y2;
     int id;
     std::vector<std::string> name ={"red","blue"};
 
-    // pub_image.publish(cv_bridge::CvImage(hd, "rgb8", camera_img).toImageMsg());
-
-
-    void Image1Callback(const sensor_msgs::ImageConstPtr &image1){
-        cv::Mat src_image1 = cv_bridge::toCvShare(image1, "rgb8")->image;
-        ros::Time time=ros::Time::now();
-
-        if(debug_){
-        cv::imshow("cam1",src_image1);
-        cv::waitKey(1);
-        }
-
-    }
     
     void Location1Callback(const rm_interfaces::RobotsConstPtr &msg){
         std::vector<robot> cam1_robot;
@@ -81,6 +63,56 @@ namespace omni{
         group.cam1_robots=cam1_robot;
     }
 
+    void Location2Callback(const rm_interfaces::RobotsConstPtr &msg){
+        std::vector<robot> cam2_robot;
+        for(int i=0;i<msg->All_robots.size();i++){
+            robot r;
+            r.tl.y=msg->All_robots[i].tl.y;
+            r.br.x=msg->All_robots[i].br.x;
+            r.tl.x=msg->All_robots[i].tl.x;
+            r.br.y=msg->All_robots[i].br.y;
+            r.id=msg->All_robots[i].id;
+            r.camera_id=2;
+            cam2_robot.push_back(r);
+        }
+        group.img2_time=msg->header.stamp.toSec();
+        group.cam2_robots=cam2_robot;
+    }
+
+        void Location3Callback(const rm_interfaces::RobotsConstPtr &msg){
+        std::vector<robot> cam3_robot;
+        for(int i=0;i<msg->All_robots.size();i++){
+            robot r;
+            r.tl.y=msg->All_robots[i].tl.y;
+            r.br.x=msg->All_robots[i].br.x;
+            r.tl.x=msg->All_robots[i].tl.x;
+            r.br.y=msg->All_robots[i].br.y;
+            r.id=msg->All_robots[i].id;
+            r.camera_id=1;
+            cam3_robot.push_back(r);
+
+        }
+        group.img3_time=msg->header.stamp.toSec();
+        group.cam3_robots=cam3_robot;
+    }
+        void Location4Callback(const rm_interfaces::RobotsConstPtr &msg){
+        std::vector<robot> cam4_robot;
+        for(int i=0;i<msg->All_robots.size();i++){
+            robot r;
+            r.tl.y=msg->All_robots[i].tl.y;
+            r.br.x=msg->All_robots[i].br.x;
+            r.tl.x=msg->All_robots[i].tl.x;
+            r.br.y=msg->All_robots[i].br.y;
+            r.id=msg->All_robots[i].id;
+            r.camera_id=1;
+            cam4_robot.push_back(r);
+
+        }
+        group.img4_time=msg->header.stamp.toSec();
+        group.cam4_robots=cam4_robot;
+    }
+
+
     //统一每个相机检测到的机器
     bool sync_packages(MeasureGroup meas, std::vector<std::vector<robot>> &detected_objects)
     {
@@ -98,9 +130,11 @@ namespace omni{
 
         bool syncFlag = false;
 
+        // ROS_INFO("%f,%d",src_times[1],detected_objects_temp[1].size());
+
         for (int i = 0; i < src_times.size(); i++)
         {
-            if (src_times[i] != 0 && (ros::Time::now().toSec() - src_times[i]) < 0.5)
+            if (src_times[i] != 0 && (ros::Time::now().toSec() - src_times[i]) < 1)
             {
                 detected_objects.push_back(detected_objects_temp[i]);
                 syncFlag = true;
@@ -112,10 +146,6 @@ namespace omni{
                 // ROS_WARN("Camera [%d] get image failed", i + 1);
             }
         }
-        // if (!syncFlag)
-        // {
-        //     ROS_WARN("ALL Camera Failed, please check camera connection");
-        // }
         return syncFlag;
     }
 }
@@ -125,19 +155,19 @@ namespace omni{
 int main(int argc, char** argv){
     using namespace omni;
     ros::init(argc,argv,"rm_omni");
-    std::string img1_topic_name;
-    ros::Subscriber img_sub_;
     ros::NodeHandle ros_nh;
     // 读参数
     std::string model_path;
-    ros::Subscriber robots;
-    bool showImg = true;
-    ros_nh.param<std::string>("/rm_omni/yolo_model_path",model_path,"/YoloModel/0403");
+
+    ros::Subscriber robots1_sub = ros_nh.subscribe<rm_interfaces::Robots>("/robots1",1,&omni::Location1Callback);
+    ros::Subscriber robots2_sub = ros_nh.subscribe<rm_interfaces::Robots>("/robots2",1,&omni::Location2Callback);
+    ros::Subscriber robots3_sub = ros_nh.subscribe<rm_interfaces::Robots>("/robots3",1,&omni::Location3Callback);
+    ros::Subscriber robots4_sub = ros_nh.subscribe<rm_interfaces::Robots>("/robots4",1,&omni::Location4Callback);
+
+    bool showImg = false;
+    ros_nh.getParam("/rm_omni/showImg",showImg);
     ros_nh.param("/debug",debug_,true);
 
-    robots = ros_nh.subscribe<rm_interfaces::Robots>("/robots1",1,&omni::Location1Callback);
-    // image_transport::ImageTransport it(ros_nh);
-    // img_sub_ = ros_nh.subscribe<sensor_msgs::Image>("raw_img2", 1, &omni::Image1Callback);
     cv::Mat around_png = cv::imread(ros::package::getPath("rm_omni") + "/maps/around.png");
     while(ros::ok()){
         ros::spinOnce();
@@ -166,7 +196,7 @@ int main(int argc, char** argv){
                     temp.id=obj[j].id;
                     temp.x=x;
                     temp.y=y;
-                    ROS_INFO("%d",x);
+                    // ROS_INFO("%d",x);
                     robot_result.push_back(temp);
                 }
             }            
@@ -176,8 +206,8 @@ int main(int argc, char** argv){
             cv::Mat around = around_png.clone();
             // std::cout<<robot_result.size();
             for(int i=0;i<robot_result.size();i++){
-                int x_around = -robot_result[i].x *1.5 + 300;
-                int y_around = -robot_result[i].y   + 400;
+                int x_around = -robot_result[i].x  + 300;
+                int y_around = -robot_result[i].y  + 400;
                 cv::putText(around, std::to_string(i+1) , cv::Point(x_around, y_around), 0, 1.5, cv::Scalar(0, 0, 255), 3, 8);
             }
 
