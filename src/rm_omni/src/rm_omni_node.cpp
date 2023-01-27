@@ -154,6 +154,7 @@ int main(int argc, char** argv){
     // 读参数
     std::string model_path;
 
+    ros::Publisher map_pub = ros_nh.advertise<rm_interfaces::Map>("/maps",1);
     ros::Subscriber robots1_sub = ros_nh.subscribe<rm_interfaces::Robots>("/robots1",1,&omni::Location1Callback);
     ros::Subscriber robots2_sub = ros_nh.subscribe<rm_interfaces::Robots>("/robots2",1,&omni::Location2Callback);
     ros::Subscriber robots3_sub = ros_nh.subscribe<rm_interfaces::Robots>("/robots3",1,&omni::Location3Callback);
@@ -169,12 +170,16 @@ int main(int argc, char** argv){
         ros::spinOnce();
         std::vector<object> robot_result;
         std::vector<std::vector<robot>> detected_objects;
+
+        
         //解算
         if(sync_packages(group,detected_objects)){
+            rm_interfaces::Map map;
             for(int j=0;j<detected_objects.size();j++){
                 std::vector<robot> obj = detected_objects[j];
                 
                 for(int i=0;i<obj.size();i++){
+                    geometry_msgs::Point point;
                     object temp;
                     float height=obj[i].br.y-obj[i].tl.y;
                     float distance  = 300*0.6/height;
@@ -185,6 +190,7 @@ int main(int argc, char** argv){
                     
                     float y = 200*dis_x; 
                     float x = 300*dis_y;
+
                     if(j==1){
                         y = x;
                         x = 200;
@@ -198,17 +204,22 @@ int main(int argc, char** argv){
                     temp.id=obj[i].id;
                     temp.x=x;
                     temp.y=y;
+                    point.x=dis_x;
+                    point.y=dis_y;
+                    point.z=obj[i].id;
                     robot_result.push_back(temp);
+                    map.point.push_back(point);
                 }
-            }            
+            }       
+            map_pub.publish(map);     
         }
+        
 
         //可视化
         if(showImg){
             int blue_robot = 0;
             int red_robot = 0;
             cv::Mat around = around_png.clone();
-            // std::cout<<robot_result.size();
             for(int i=0;i<robot_result.size();i++){
                 int x_around = -robot_result[i].x  + 300;
                 int y_around = -robot_result[i].y  + 400;
