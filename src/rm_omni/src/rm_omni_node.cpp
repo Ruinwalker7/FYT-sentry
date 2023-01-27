@@ -17,14 +17,11 @@ namespace omni{
         cv::Point2f tl;
         cv::Point2f br;
         int id;
-    };
-
-    //可视化位置
-    struct object{
+        //x,y指的是可视化图的坐标
         int x;
         int y;
-        int id;
     };
+
 
     struct MeasureGroup
     {
@@ -39,11 +36,8 @@ namespace omni{
         std::vector<robot> cam4_robots;
     };
     MeasureGroup group;
-
-    bool debug_;
-    std::vector<std::string> name ={"red","blue"};
-
     
+    //回调函数
     void Location1Callback(const rm_interfaces::RobotsConstPtr &msg){
         std::vector<robot> cam1_robot;
         for(int i=0;i<msg->All_robots.size();i++){
@@ -127,7 +121,6 @@ namespace omni{
 
         bool syncFlag = false;
 
-
         for (int i = 0; i < src_times.size(); i++)
         {
             if (src_times[i] != 0 && (ros::Time::now().toSec() - src_times[i]) < 1)
@@ -153,7 +146,7 @@ int main(int argc, char** argv){
     ros::NodeHandle ros_nh;
     // 读参数
     std::string model_path;
-
+    bool debug_;
     ros::Publisher map_pub = ros_nh.advertise<rm_interfaces::Map>("/maps",1);
     ros::Subscriber robots1_sub = ros_nh.subscribe<rm_interfaces::Robots>("/robots1",1,&omni::Location1Callback);
     ros::Subscriber robots2_sub = ros_nh.subscribe<rm_interfaces::Robots>("/robots2",1,&omni::Location2Callback);
@@ -168,7 +161,7 @@ int main(int argc, char** argv){
     
     while(ros::ok()){
         ros::spinOnce();
-        std::vector<object> robot_result;
+        std::vector<robot> robot_result;
         std::vector<std::vector<robot>> detected_objects;
 
         
@@ -180,7 +173,7 @@ int main(int argc, char** argv){
                 
                 for(int i=0;i<obj.size();i++){
                     geometry_msgs::Point point;
-                    object temp;
+                    robot temp=obj[i];
                     float height=obj[i].br.y-obj[i].tl.y;
                     float distance  = 300*0.6/height;
 
@@ -232,7 +225,7 @@ int main(int argc, char** argv){
             }
 
             cv::imshow("around", around);
-            cv::waitKey(1000);
+            cv::waitKey(1);
         }
 
     }
