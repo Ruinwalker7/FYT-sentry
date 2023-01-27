@@ -154,19 +154,21 @@ class omni_detector:
                 print(b)
                 obj_score, cls_index = b[4], int(b[5])
                 x1, y1, x2, y2 = int(b[0]), int(b[1]), int(b[2]), int(b[3])
-
                 robot.tl.x=x1
-                robot.tl.y=y2
+                robot.tl.y=y1
                 robot.br.x=x2
                 robot.br.y=y2
                 robot.id=cls_index
                 robots1.All_robots.append(robot)
+                # rospy.loginfo(robot.tl.y,robot.br.y)
                 #绘制检测框
+                print(robot.tl.y)
+                print(robot.br.y)
                 cv2.rectangle(new_img, (x1,y1), (x2, y2), (255, 255, 0), 2)
                 cv2.putText(new_img, '%.2f' % obj_score, (x1, y1 - 5), 0, 0.7, (0, 255, 0), 2)
                 cv2.putText(new_img, self.names[cls_index], (x1, y1 - 25), 0, 0.7, (0, 255, 0), 2)
-            # cv2.imshow("result1", new_img)
-            # cv2.waitKey(10)
+            cv2.imshow("result1", new_img)
+            cv2.waitKey(10)
             robots1.header = msg.header
             self.robots1_pub.publish(robots1)
 
@@ -181,10 +183,8 @@ class omni_detector:
             robots2=Robots()
             robot=Robot()
             for b in bboxes:
-                print(b)
                 obj_score, cls_index = b[4], int(b[5])
                 x1, y1, x2, y2 = int(b[0]), int(b[1]), int(b[2]), int(b[3])
-
                 robot.tl.x=x1
                 robot.tl.y=y2
                 robot.br.x=x2
@@ -196,8 +196,8 @@ class omni_detector:
                 cv2.rectangle(new_img, (x1,y1), (x2, y2), (255, 255, 0), 2)
                 cv2.putText(new_img, '%.2f' % obj_score, (x1, y1 - 5), 0, 0.7, (0, 255, 0), 2)
                 cv2.putText(new_img, self.names[cls_index], (x1, y1 - 25), 0, 0.7, (0, 255, 0), 2)
-            # cv2.imshow("result2", new_img)
-            # cv2.waitKey(10)
+            cv2.imshow("result2", new_img)
+            cv2.waitKey(10)
             robots2.header = msg.header
             self.robots2_pub.publish(robots2)
 
@@ -212,10 +212,8 @@ class omni_detector:
             robots3=Robots()
             robot=Robot()
             for b in bboxes:
-                print(b)
                 obj_score, cls_index = b[4], int(b[5])
                 x1, y1, x2, y2 = int(b[0]), int(b[1]), int(b[2]), int(b[3])
-
                 robot.tl.x=x1
                 robot.tl.y=y2
                 robot.br.x=x2
@@ -243,7 +241,6 @@ class omni_detector:
             robots4=Robots()
             robot=Robot()
             for b in bboxes:
-                print(b)
                 obj_score, cls_index = b[4], int(b[5])
                 x1, y1, x2, y2 = int(b[0]), int(b[1]), int(b[2]), int(b[3])
 

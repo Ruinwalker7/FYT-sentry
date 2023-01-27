@@ -7,8 +7,10 @@
 #include "rm_interfaces/Robots.h"
 #include "rm_interfaces/Robot.h"
 #include <ros/package.h>
+#include <math.h>
 
 namespace omni{
+    //矩阵位置
     struct robot{
         int camera_id;
         cv::Point2f tl;
@@ -16,6 +18,7 @@ namespace omni{
         int id;
     };
 
+    //可视化位置
     struct object{
         int x;
         int y;
@@ -35,14 +38,8 @@ namespace omni{
         std::vector<robot> cam4_robots;
     };
     MeasureGroup group;
-    struct Location{
-        float yaw;
-        int id;
-        float distance;
-    };
 
     bool debug_;
-    int id;
     std::vector<std::string> name ={"red","blue"};
 
     
@@ -57,7 +54,6 @@ namespace omni{
             r.id=msg->All_robots[i].id;
             r.camera_id=1;
             cam1_robot.push_back(r);
-
         }
         group.img1_time=msg->header.stamp.toSec();
         group.cam1_robots=cam1_robot;
@@ -88,7 +84,7 @@ namespace omni{
             r.tl.x=msg->All_robots[i].tl.x;
             r.br.y=msg->All_robots[i].br.y;
             r.id=msg->All_robots[i].id;
-            r.camera_id=1;
+            r.camera_id=3;
             cam3_robot.push_back(r);
 
         }
@@ -104,7 +100,7 @@ namespace omni{
             r.tl.x=msg->All_robots[i].tl.x;
             r.br.y=msg->All_robots[i].br.y;
             r.id=msg->All_robots[i].id;
-            r.camera_id=1;
+            r.camera_id=4;
             cam4_robot.push_back(r);
 
         }
@@ -130,7 +126,6 @@ namespace omni{
 
         bool syncFlag = false;
 
-        // ROS_INFO("%f,%d",src_times[1],detected_objects_temp[1].size());
 
         for (int i = 0; i < src_times.size(); i++)
         {
@@ -143,7 +138,6 @@ namespace omni{
             {
                 std::vector<robot> emptyObject;
                 detected_objects.push_back(emptyObject);
-                // ROS_WARN("Camera [%d] get image failed", i + 1);
             }
         }
         return syncFlag;
@@ -169,6 +163,7 @@ int main(int argc, char** argv){
     ros_nh.param("/debug",debug_,true);
 
     cv::Mat around_png = cv::imread(ros::package::getPath("rm_omni") + "/maps/around.png");
+    
     while(ros::ok()){
         ros::spinOnce();
         std::vector<object> robot_result;
@@ -180,9 +175,15 @@ int main(int argc, char** argv){
                 
                 for(int i=0;i<obj.size();i++){
                     object temp;
-                    int middle = (obj[i].br.x+obj[i].tl.x)/2;
-                    int x = middle-176;
-                    int y = 200;
+                    float height=obj[i].br.y-obj[i].tl.y;
+                    float distance  = 300*0.6/height;
+
+                    float dis_middle = 200-(obj[i].br.x+obj[i].tl.x)/2;
+                    float dis_y = dis_middle/400;
+                    float dis_x = sqrt(distance*distance-dis_y*dis_y);
+                    
+                    float y = 200*dis_x; 
+                    float x = 300*dis_y;
                     if(j==1){
                         y = x;
                         x = 200;
@@ -193,26 +194,33 @@ int main(int argc, char** argv){
                         y=x;
                         x=-200;
                     }
-                    temp.id=obj[j].id;
+                    temp.id=obj[i].id;
                     temp.x=x;
                     temp.y=y;
-                    // ROS_INFO("%d",x);
                     robot_result.push_back(temp);
                 }
             }            
         }
+
         //可视化
         if(showImg){
+            int blue_robot = 0;
+            int red_robot = 0;
             cv::Mat around = around_png.clone();
             // std::cout<<robot_result.size();
             for(int i=0;i<robot_result.size();i++){
                 int x_around = -robot_result[i].x  + 300;
                 int y_around = -robot_result[i].y  + 400;
-                cv::putText(around, std::to_string(i+1) , cv::Point(x_around, y_around), 0, 1.5, cv::Scalar(0, 0, 255), 3, 8);
+                if(robot_result[i].id==0){
+                cv::putText(around, std::to_string(red_robot+1) , cv::Point(x_around, y_around), 0, 1.5, cv::Scalar(0, 0, 255), 3, 8);
+                red_robot++;}
+                else if(robot_result[i].id==1){
+                cv::putText(around, std::to_string(blue_robot+1) , cv::Point(x_around, y_around), 0, 1.5, cv::Scalar(255, 0, 0), 3, 8);
+                blue_robot++;}
             }
 
             cv::imshow("around", around);
-            cv::waitKey(1);
+            cv::waitKey(1000);
         }
 
     }
