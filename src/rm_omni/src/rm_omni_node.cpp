@@ -6,6 +6,7 @@
 #include "std_msgs/String.h"
 #include "rm_interfaces/Robots.h"
 #include "rm_interfaces/Robot.h"
+#include "rm_interfaces/Map.h"
 #include <ros/package.h>
 #include <math.h>
 

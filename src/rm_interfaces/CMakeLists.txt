@@ -59,6 +59,7 @@ find_package(catkin REQUIRED COMPONENTS
    TrackInfo.msg
    Robots.msg
    Robot.msg
+   Map.msg
  )
 
 ## Generate services in the 'srv' folder
